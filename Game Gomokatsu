@@ -1,0 +1,106 @@
+# Game Five in a Row (5 Berurutan / SOS 5-in-a-row) untuk 2 Player
+
+def print_board(board):
+    size = len(board)
+    # Print nomor kolom
+    print("   " + " ".join([f"{i:2}" for i in range(size)]))
+    print("  +" + "---" * size + "+")
+    
+    # Print baris beserta nomor baris
+    for i in range(size):
+        row_str = f"{i:2}|"
+        for j in range(size):
+            row_str += f" {board[i][j]} "
+        row_str += "|"
+        print(row_str)
+    print("  +" + "---" * size + "+")
+
+def check_win(board, player, row, col):
+    size = len(board)
+    directions = [
+        (0, 1),   # Horizontal
+        (1, 0),   # Vertikal
+        (1, 1),   # Diagonal kanan bawah
+        (1, -1)   # Diagonal kiri bawah
+    ]
+
+    for dr, dc in directions:
+        count = 1  # Hitung simbol yang baru ditaruh
+
+        # Cek ke arah depan
+        r, c = row + dr, col + dc
+        while 0 <= r < size and 0 <= c < size and board[r][c] == player:
+            count += 1
+            r += dr
+            c += dc
+
+        # Cek ke arah belakang (berlawanan)
+        r, c = row - dr, col - dc
+        while 0 <= r < size and 0 <= c < size and board[r][c] == player:
+            count += 1
+            r -= dr
+            c -= dc
+
+        # Jika ada 5 atau lebih berurutan, pemain menang
+        if count >= 5:
+            return True
+
+    return False
+
+def is_board_full(board):
+    for row in board:
+        if "." in row:
+            return False
+    return True
+
+def main():
+    BOARD_SIZE = 10  # Papan ukuran 10x10
+    board = [["." for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]
+    
+    current_player = "X"
+    game_over = False
+
+    print("========================================")
+    print(" Selamat Datang di Game Five in a Row!")
+    print(" Dapatkan 5 simbol berurutan untuk menang.")
+    print("========================================\n")
+
+    while not game_over:
+        print_board(board)
+        print(f"\nGiliran Player ({current_player})")
+
+        # Input koordinat dari pemain
+        try:
+            row = int(input(f"Masukkan baris (0-{BOARD_SIZE-1}): "))
+            col = int(input(f"Masukkan kolom (0-{BOARD_SIZE-1}): "))
+        except ValueError:
+            print("❌ Input harus berupa angka! Coba lagi.\n")
+            continue
+
+        # Validasi langkah
+        if row < 0 or row >= BOARD_SIZE or col < 0 or col >= BOARD_SIZE:
+            print("❌ Koordinat di luar area papan! Coba lagi.\n")
+            continue
+
+        if board[row][col] != ".":
+            print("❌ Kotak tersebut sudah terisi! Pilih lokasi lain.\n")
+            continue
+
+        # Simpan langkah player
+        board[row][col] = current_player
+
+        # Cek kemenangan
+        if check_win(board, current_player, row, col):
+            print_board(board)
+            print(f"\n🎉 SELAMAT! Player '{current_player}' MENANG! 🎉\n")
+            game_over = True
+        elif is_board_full(board):
+            print_board(board)
+            print("\n🤝 Game Seri! Papan sudah penuh.\n")
+            game_over = True
+        else:
+            # Ganti giliran pemain
+            current_player = "O" if current_player == "X" else "X"
+
+if __name__ == "__main__":
+    main()
